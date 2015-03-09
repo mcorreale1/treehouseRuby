@@ -25,16 +25,42 @@ width: 100%;
 	width:122px;
 }"
 
-css_hashes = []
-lines = input
-lines.delete!("\n").delete!("\t")
-lines = input.split('}')
-lines.each_with_index{ |c, n|
-	css = c.split( /;|{/)
-	css_hashes << { "element" => css.shift.strip}
-	css.each{ |w|
-		attributes = w.split(':').map(&:strip)
-		css_hashes[n][attributes[0]] = attributes[1]
-	}
-}
-puts css_hashes
+
+class Css_Reader
+	def initialize(css_input)
+		@raw_css = css_input
+		@css_hash = []
+		self.split_css
+
+	end
+
+	def split_css
+		css_hashes = []
+		lines = @raw_css
+		lines.gsub!(/\/\*[^\*]*\*+([^\/\*][^\*]*\*+)*\//m, "")
+		lines.delete!("\n").delete!("\t")
+
+
+		lines.split('}').each_with_index{ |c, n|
+			css = c.split( /;|{/)
+			css_hashes << { "element" => css.shift.strip }
+			css.each{ |w|
+				attributes = w.split(':').map(&:strip)
+				css_hashes[n][attributes[0]] = attributes[1]
+			}
+		}
+		@css_hash = css_hashes
+	end
+
+	def css_hash 
+		@css_hash
+	end
+	def to_s
+		@css_hash
+	end
+end
+reader = Css_Reader.new(input)
+puts reader.to_s
+
+
+
