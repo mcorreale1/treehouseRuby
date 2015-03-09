@@ -1,19 +1,23 @@
 class Array
   def iterate!
     self.each_with_index do |n, i|
-      self[i] = yield(n)
+    	#yield applys a block of code to each
+    	#element of the array
+		self[i] = yield(n)
     end
   end
 end
 
 array = [1, 2, 3, 4]
 
-array.iterate! do |n|
-  n * 3
+array.iterate! do |c|
+  c * 3
 end
 
 puts array.inspect
 
+
+=begin
 def module_split(module_path, separator = "::")
 	#splits string into array
 	modules = module_path.split(separator)
@@ -29,4 +33,5 @@ str1= String.new
 enumerator = %w(one two three).each
 enumerator.map{|c| str1+=c+' '} # => Enumerator
 puts str1
+=end
 

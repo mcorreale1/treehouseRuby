@@ -4,17 +4,19 @@ class StringSort
 	#Initializer
 	def initialize(str)
 		@raw_string = str
-		@sorted_string
-		@array_string = @raw_string.split ""
-		#Turn array values into ascii
-		i = 0
-		#.each gets each value of a list
-		#do loops through each
-		#|c| is the instance variable that theyre saved in
-		@raw_string.each_byte do |c|
-			@array_string[i] = c
-			i+=1
-		end
+		@array_string = @raw_string.split('').map(&:ord)
+		@sorted_string = ""
+		sort_string
+		#.split('') splits into array
+		#.map Lambda expression (not enough space to explain)
+		#& has to do with procs, :ord is the method
+	end
+
+	def sort_string
+		@sorted_string = @array_string.sort.map{ |c|
+			c = c.to_i.chr
+		}.join(" ")
+		puts sorted_string
 	end
 	#returns values
 	def raw_string
@@ -27,5 +29,6 @@ class StringSort
 		return @array_string
 	end
 end
-test = StringSort.new("test")
-puts(test.array_string)
+test = StringSort.new("AdsCv").sorted_string
+puts test
+#test = test.split(" ").map{|c|}
