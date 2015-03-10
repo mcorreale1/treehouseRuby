@@ -14,8 +14,9 @@ array.iterate! do |c|
   c * 3
 end
 
-puts array.inspect
-
+hash = {'test' => []}
+hash['adsa'] = 5
+puts hash
 
 =begin
 def module_split(module_path, separator = "::")

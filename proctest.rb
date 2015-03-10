@@ -17,3 +17,17 @@ def what_am_i(&block)
   block.class
 end
 
+numbers = []
+number = 0
+
+loop do
+	numbers << number
+	number+=1
+	if numbers.length >= 3
+		break
+	else
+		puts number 
+	end
+
+
+end

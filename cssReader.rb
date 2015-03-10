@@ -14,53 +14,75 @@ width: 100%;
 	text-align: left;
 	color: #FFF;
 }
-
-.header .nav.nav-pills {
-	margin-top: 50px;
-	float: right;
-	padding: 0 20px;
-}
-.header .nav.nav-pills li{
-	height: 50px;
-	width:122px;
+@media (max-width:600px){
+	.header .nav.nav-pills {
+		margin-top: 50px;
+		float: right;
+		padding: 0 20px;
+	}
+	.header .nav.nav-pills li{
+		height: 50px;
+		width:122px;
+	}
 }"
 
 
 class Css_Reader
 	def initialize(css_input)
 		@raw_css = css_input
-		@css_hash = []
-		self.split_css
-
+		@css_hashes = []
+		split_css
+	end
+	
+	def hash_css(css_array)
+		raw_hash = {'selector' => css_array.shift, 'contents' => []}
+		css_array.each{ |i| 
+			props = i.split(':').map(&:strip)
+			raw_hash['contents'].push({props[0] => props[1]})
+		}
+		return raw_hash
 	end
 
 	def split_css
-		css_hashes = []
 		lines = @raw_css
 		lines.gsub!(/\/\*[^\*]*\*+([^\/\*][^\*]*\*+)*\//m, "")
 		lines.delete!("\n").delete!("\t")
-
-
 		lines.split('}').each_with_index{ |c, n|
-			css = c.split( /;|{/)
-			css_hashes << { "element" => css.shift.strip }
-			css.each{ |w|
-				attributes = w.split(':').map(&:strip)
-				css_hashes[n][attributes[0]] = attributes[1]
+			css_selectors = {}
+			css = c.split( /;|{/).map(&:strip)
+			if css[0].include?("@media") then
+				css_selectors = {"query" => css.shift[6..-1].strip, 'contents' => [hash_css(css)] }
+			else
+				css_selectors = hash_css(css)
+			end
+			@css_hashes << css_selectors
+		}
+	end
+	attr_accessor :raw_css
+	attr_accessor :css_hashes
+	def to_s
+		output = ""
+
+		@css_hashes.map { |css|
+			hash = css
+			repeat = 1
+			if hash.keys[0] == 'query'
+				output =  output + "#{hash.keys[0]}: #{hash.values[0]}\n\t"
+				repeat = 2
+				hash = hash['contents'][0]
+			end
+			output =  output + "#{hash.keys[0]}: #{hash.values[0]}\n"
+
+			hash['contents'].each { |prop|
+				output = output + ("\t" * repeat) + "#{prop.keys[0]}: #{prop.values[0]}\n"
 			}
 		}
-		@css_hash = css_hashes
-	end
-
-	def css_hash 
-		@css_hash
-	end
-	def to_s
-		@css_hash
+		output
 	end
 end
 reader = Css_Reader.new(input)
-puts reader.to_s
+# puts reader.to_s
+puts reader.css_hashes
 
 
 
