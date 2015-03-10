@@ -1,40 +1,9 @@
-=begin
-str1 = "Hello World"
-str2 = str1.split('')
-
-#.map() is a lambda expression that copys elements
-#into new array
-# & is each element that is copied to new array
-#:function is whats ran on each function
-str2 = str2.map(&:upcase).join('')
-
-
-test = false
-ary1 = [1, 2, 3, 4, 5]
-#.each runs through each element but doesnt save
-#elements, just tests
-ary1 = ary1.each{|c| c**2 
-	if c == 25
-		test = true
-	end
-}
-
-#same thing as previous lambda but |c| is the 
-#variable for each element of array
-#map! saves the array in the original place
-ary2 = ary1.map{|c| c**c}
-
-#will return last reference variable
-def num_stuff(a,b)
-	a*b
-end 
-=end
-input = "body{background-color: #f4f4f4;}
-
+input = "
 .header {
 height: 100px;
 width: 100%;
 }
+
 @media (max-width: 600px){
 	.header .container-fluid h1 a{
 		text-align: left;
@@ -49,11 +18,44 @@ width: 100%;
 		padding: 0 20px;
 	}
 }
+@media (max-height: 600px) {
+	.header .title {
+		height: 80px;
+		width: 200px;
+		display: inline-block;/*sda*/
+	}
+	body {
+		background-color: #f4f4f4;
+	}
+}
+"
+
+input2 = "body{background-color: #f4f4f4;}
+.header {
+height: 100px;
+width: 100%;
+}
 .header .title {
 	height: 80px;
 	width: 200px;
-	display: inline-block;/*sda*/
-}"
+	display: inline-block;
+}
+
+.header .container-fluid h1 a{
+	text-align: left;
+	color: #FFF;
+}
+
+.header .nav.nav-pills {
+	margin-top: 50px;
+	float: right;
+	padding: 0 20px;
+
+.header .nav.nav-pills li{
+	height: 50px;
+	width:122px;
+}
+"
 
 def hash_css(css_array)
 	raw_hash = {'selector' => css_array.shift, 'contents' => []}
@@ -65,15 +67,14 @@ def hash_css(css_array)
 end
 
 def query_range()
+	#WRITE THIS
 end
 
-
 css_hashes = []
-lines = input
-lines.gsub!(/\/\*[^\*]*\*+([^\/\*][^\*]*\*+)*\//m, "").strip!
+lines = input2
+lines.strip!.gsub!(/\/\*[^\*]*\*+([^\/\*][^\*]*\*+)*\//m, "")
 lines.delete!("\n").delete!("\t")
-puts lines.split(/\}/).map{|c| c = c + '}'}
-lines.each_with_index{ |c, n|
+lines.scan(/[^}]*}/).each_with_index{ |c, n|
 	css_selectors = {}
 	css = c.split( /;|{/).map(&:strip)
 	if css[0].include?("@media") then
@@ -83,7 +84,7 @@ lines.each_with_index{ |c, n|
 	end
 	css_hashes << css_selectors
 }
-
+puts css_hashes
 
 
 
