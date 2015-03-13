@@ -24,9 +24,14 @@ width: 100%;
 		width: 200px;
 		display: inline-block;/*sda*/
 	}
-	body {
-		background-color: #f4f4f4;
-	}
+}
+body {
+	background-color: #f4f4f4;
+}
+.header .nav.nav-pills {
+	margin-top: 50px;
+	float: right;
+	padding: 0 20px;
 }
 "
 
@@ -50,7 +55,7 @@ width: 100%;
 	margin-top: 50px;
 	float: right;
 	padding: 0 20px;
-
+}
 .header .nav.nav-pills li{
 	height: 50px;
 	width:122px;
@@ -59,6 +64,7 @@ width: 100%;
 
 def hash_css(css_array)
 	raw_hash = {'selector' => css_array.shift, 'contents' => []}
+	css_array.pop
 	css_array.each{ |i| 
 		props = i.split(':').map(&:strip)
 		raw_hash['contents'].push({props[0] => props[1]})
@@ -66,26 +72,55 @@ def hash_css(css_array)
 	return raw_hash
 end
 
-def query_range()
-	#WRITE THIS
+#Gets how long the media query is
+def query_length(css_array)
+	length = 0
+	css_array.each_with_index{ |c, n|
+		if c.include?("}}")
+			length = n
+			break
+		end
+	}
+	return length
 end
+
 
 css_hashes = []
 lines = input2
+media_length = 0
 lines.strip!.gsub!(/\/\*[^\*]*\*+([^\/\*][^\*]*\*+)*\//m, "")
 lines.delete!("\n").delete!("\t")
-lines.scan(/[^}]*}/).each_with_index{ |c, n|
+lines = lines.scan(/[^}]*}/)
+
+
+#check for media query formating
+for i in 0..lines.length 
+	if lines[i] == "}"
+		lines.delete_at(i)
+		lines[i-1] << "}"
+	end
+end
+pos = 0
+while pos < lines.length do
 	css_selectors = {}
-	css = c.split( /;|{/).map(&:strip)
+	css = lines[pos].split( /;|{/).map(&:strip)
+
 	if css[0].include?("@media") then
-		css_selectors = {"query" => css.shift[6..-1].strip, 'contents' => [hash_css(css)] }
+		media_length = query_length(lines[pos..-1])
+		css_selectors = {"query" => css.shift[6..-1].strip, 'contents' => []  }
 	else
 		css_selectors = hash_css(css)
 	end
+
+	if media_length > 0
+		media_length-=1
+	end
 	css_hashes << css_selectors
-}
+	pos+=1
+end
 puts css_hashes
 
 
 
-# lines = lines.split(/\}/).map{|s| s +'}'}
+
+

@@ -1,16 +1,24 @@
-input="1
-374
-1634
-8208
-94974"
-num_ary = input.split("\n")
-added_nums = Array.new
-num_ary.each{|c|
-	sum = 0
-	each_num = c.split("").map(&:to_i).each{|d| sum += d**c.size }
-	added_nums << sum
-}
-num_ary.map!(&:to_i).zip(added_nums).each{|c, d|
-	puts((c==d).to_s)
-}
+max = 1000
+number = 5
+times_found = 0
 
+for i in 0..max-1 do 
+	array = i.to_s.split('').map(&:to_i)
+	for n in 0...array.length do
+		if array[n] == number
+			times_found += 1
+			break
+		end
+	end
+end
+
+will_is = %w[gay
+fag
+bag
+dumb
+]
+
+
+will_is.each { |c|
+	puts "Hey will ur #{c}"
+}
