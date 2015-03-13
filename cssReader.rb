@@ -1,32 +1,50 @@
-input = "body{background-color: #f4f4f4;}
-@char-set 'sdasd';
-.header {
-height: 100px;
-width: 100%;
-}
-.header .title {
-	height: 80px;
-	width: 200px;
-	display: inline-block;
-}
+## Michael Correale, "Finished" 3/12/15
+## Version 1.0
+## Description:
+## 	Reads CSS files and formats rules into a hash
+##  Media query rules are formatted into an array of hashes
+##  at-rules are formatted into a hash
+##  First hash key will always be either 'at-rule', 'query', or 'selector'
+##
+## Syntax:
+##  standard rule:
+##   key = 'selector'
+##    value = selector for rule
+##   key = 'contents'
+##    value = array of hashes that contain declarations
+##     key = property of css rule
+##      value = value of css
+##   ex: a{	text-decoration: none; color: inherit;}
+##       {"selector"=>"a", "contents"=>[{"text-decoration"=>"none"}, {"color"=>"inherit"}]}
+##
+##  at-rules:
+##   key = 'at-rule'
+##    value = rule
+##   key = 'command'
+##    value = what rule is doing
+##   ex: @char-set "test"; 
+##	     {"at_rule"=>"@char-set", "command"=>"\"test\""}
 
-@media and screen = (max-width:600px){
-	.header .nav.nav-pills {
-		margin-top: 50px;
-		float: right;
-		padding: 0 20px;
-	}
-	.header .nav.nav-pills li{
-		height: 50px;
-		width:122px;
-	}
-}
-.header .container-fluid h1 a{
-	text-align: left;
-	color: #FFF;
-}"
-
-
+##  nested at-rules (@media, @print):
+##   key = 'at-rule'
+##    value = rule
+##   key = 'command'
+##    value = what rule is doing
+##   key = 'contents'
+##    value = array of standard CSS rules that fall into this query
+##     (see standard at-rule syntax)
+##   ex  @media screen and (min-width:500px){
+##			.header{
+##			height: 120px;
+##			max-height: 160px;
+##			-webkit-transition: height .5s;
+##			}
+##			.login {
+##				float: right;
+##				padding:7px;
+##			}
+##    }
+##
 class Css_Reader
 	def initialize(css_input)
 		@raw_css = css_input
@@ -56,6 +74,8 @@ class Css_Reader
 		}
 		return length
 	end
+	#formats the CSS into hashes
+	#media query 
 	def split_css
 		lines = @raw_css
 		#accounts for comments
@@ -104,6 +124,10 @@ class Css_Reader
 		end
 
 	end
+
+
+
+	#Printing functions
 	attr_accessor :raw_css
 	attr_accessor :css_hashes
 	def to_s
@@ -132,9 +156,18 @@ class Css_Reader
 		output
 	end
 end
+input = ""
+File.open("css/style1.css").each { |line|
+	input = input + line
+}
+
 reader = Css_Reader.new(input)
-puts reader.to_s
-#puts reader.css_hashes
+puts reader.css_hashes
+# reader.css_hashes.each { |line|
+# 	puts line['selector']
+#}
+
+
 
 
 

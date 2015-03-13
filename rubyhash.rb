@@ -17,13 +17,17 @@ array = %w[@media
 	adasdsa
 	@dasdasd
 ]
-array.each_with_index { |c, i|
-	if c.include?("@media")
-		puts "#{i} @media"
-	elsif c.include?("@")
-		puts "#{i} @"
-	else
-		puts "#{i} none"
-	end
+# array.each_with_index { |c, i|
+# 	if c.include?("@media")
+# 		puts "#{i} @media"
+# 	elsif c.include?("@")
+# 		puts "#{i} @"
+# 	else
+# 		puts "#{i} none"
+# 	end
+# }
+input = ""
+File.open("css/style1.css").each {|line|
+	input = input + line
 }
-
+puts input
