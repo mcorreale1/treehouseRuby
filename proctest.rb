@@ -17,17 +17,11 @@ def what_am_i(&block)
   block.class
 end
 
-numbers = []
-number = 0
+ary1 = [1, 2, 3, 4]
+ary2 = [5, 6, 7, 8]
+ary3 = [9, 10, 11 ,12]
 
-loop do
-	numbers << number
-	number+=1
-	if numbers.length >= 3
-		break
-	else
-		puts number 
-	end
-
-
-end
+ary1.each_with_index{ |c, n|
+	ary2.insert(n, c)
+}
+puts ary2.inspect
