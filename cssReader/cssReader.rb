@@ -49,10 +49,11 @@ class Css_Reader
 	@@single_atrule = %w[@char-set @import @namespace]
 	def initialize(css_input)
 		@raw_css = css_input
+		@formatted_css = ""
 		@css_hashes = []
+		pre_format_css
 		split_css
 	end
-
 
 	#Takes an array that contains the css elements
 	#returns a formatted hash
@@ -68,7 +69,7 @@ class Css_Reader
 
 	#takes an at rule array
 	#returns true if nested, false if not
-	def at_rule?(css_string)
+	def get_rule_type(css_string)
 
 		if css_string.include?('@')
 
@@ -77,12 +78,12 @@ class Css_Reader
 					return "single"
 				end
 			}
-			if css_string.include?('keyframes')
-				return 'keyframes'
-			end
+			# if css_string.include?('keyframes')
+			# 	return 'keyframes'
+			# end
 			return "nested"
 		else
-			return false
+			return "selector"
 		end
 	end
 
@@ -100,59 +101,74 @@ class Css_Reader
 	end
 
 	#Formats the CSS file to be read
-	def pre_format_css(css_lines)
+	def pre_format_css
+
+		css = @raw_css
 
 		#Removes comments
-		css_lines.gsub!(/\/\*[^\*]*\*+([^\/\*][^\*]*\*+)*\//m, "")
-		css_lines.gsub!(/\n|\t/, "")
+		css.gsub!(/\/\*[^\*]*\*+([^\/\*][^\*]*\*+)*\//m, "")
+		css.gsub!(/\n|\t/, "")
 
 		#Splits at each }
-		css = css_lines.scan(/[^}]*}/)
+		css = css.scan(/[^}]*}/)
 
-		#check for media query formating by adding back a }
-		#to the previous line
+			# check for media query formating 
+			# adds } to the previous line
 		for i in 0..css.length 
 			if css[i] == "}"
 				css.delete_at(i)
 				css[i-1] << "}"
 			end
 		end
+
+		#multiple formatting conditions handled here
 		css.each_with_index{ |c,i|
-			if at_rule?(c) == "single"
-				pos = i
+
+			#check for single at-rule formatting
+			if get_rule_type(c) == "single"
+				css.delete_at(i)
 				c = c.split(";")
-				c.map!{|n| n << ";"}
-				c.reverse
-				c.each{ |n| css.unshift}
-
-			else
-				c
+				c.each_with_index{|n, k| 
+					if (get_rule_type(n) == "single")
+						n << ";"
+					end
+					css.insert(i+k,n)
+				}
 			end
-
-		}	
-
-		#puts css[0]
-		exit
-		return css
+			#checks for missing final ;
+			# elsif get_rule_type(c) == "selector"
+			if c[-2..-1] == "}}"
+				if c[-3] != ";"
+					c.insert(-3, ";")
+				end
+			elsif c[-1] == "}"
+				if c[-2] != ";"
+					c.insert(-2, ";")
+				end
+			end
+			# end
+		}
+		@formatted_css = css
+		return @formatted_css
 	end
 
 	#formats the CSS into hashes
 	#media query 
 	def split_css
-		lines = @raw_css
-		lines = pre_format_css(lines)
-
+		lines = @formatted_css
 		pos = 0
 		while pos < lines.length do
 			css_selectors = {}
-			css = lines[pos].split( /;|{/).map(&:strip)
-			is_at_rule = at_rule?(css[0])
-			if is_at_rule == "nested"
-				media_length = 0
+			css = lines[pos].split( /;|{/ ).map(&:strip)
+
+			rule_type = get_rule_type(css[0])
+
+			#hashing for different rule types
+			if rule_type == "nested"
 				media_array = []
 				media_length = query_length(lines[pos..-1])
-
-				css_selectors = {'at_rule' => css[0][0..6].strip, 'command' => css[0][6..-1].strip}
+				rule = css[0].split(" ", 2)
+				css_selectors = {'at_rule' => rule[0].strip, 'command' => rule[1].strip}
 				for i in 0..media_length
 					css = lines[pos+i].split( /;|{/)
 					if i == 0 
@@ -162,17 +178,19 @@ class Css_Reader
 				end
 				css_selectors['contents'] = media_array
 				pos+=media_length
-				
-			elsif is_at_rule == "single"
+			
+			#single at rules	
+			elsif rule_type == "single"
 				rule = css.shift.split(" ", 2).map(&:strip)
 				css_selectors = {'at_rule' => rule[0], 'command' => rule[1]}
-				@css_hashes.unshift(css_selectors)
-				css_selectors = hash_css(css)
 
-			#for standard css rule
-			elsif is_at_rule == "keyframes"
-				#puts css
-			else
+			#keyframe rules
+			elsif rule_type == "keyframes"
+				rule = css[0].split(" ", 2)
+
+
+			#standard css rule
+			elsif rule_type == "selector"
 				css_selectors = hash_css(css)
 			end
 			@css_hashes << css_selectors
@@ -213,34 +231,11 @@ class Css_Reader
 	end
 end
 input = ""
-File.open("css/style1.css").each { |line|
+File.open("css/google.css").each { |line|
 	input = input + line
 }
-# input = "
-# a{	
-# 	text-decoration: none;
-#  	color: inherit;
-# }
-# p{
-# 	display: inline-block; 
-# 	margin: 0;
-# 	font-size: .725em;
-# }
-# h1,h2{ 
-# 	display: block; 
-# 	margin: 0;
-# 	padding: 10px 0px;
-# }
-# li{ 
-# 	display: inline-block;	
-# 	list-style-type: none; 
-# }
-# .off{
-# 	display: none !important;
-# }
-# "
 reader = Css_Reader::new(input)
-#puts reader.css_hashes
+puts reader.css_hashes
 
 
 
