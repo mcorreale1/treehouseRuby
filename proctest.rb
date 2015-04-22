@@ -17,6 +17,8 @@ def what_am_i(&block)
   block.class
 end
 
+
+# Forms a struct with a :chain parameter
 DNA = Struct.new(:chain) do
   def triples
     chain.split(//).each_slice(3).to_a
@@ -32,6 +34,8 @@ end
 
 test = DNA.new('AGGTTACCA') & DNA.new('TTAAGGCCC')
 puts test.inspect
+
+
 
 
 

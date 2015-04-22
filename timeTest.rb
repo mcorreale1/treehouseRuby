@@ -13,10 +13,8 @@
 # 	puts Time.now
 # end
 
-ary = []
-ary[0] = 1
-ary << 2
-hash = {}
-hash['test'] = "test"
-hash.merge!({"array" => ary})
-puts hash.inspect
+class Fixnum
+	def to_a
+		return [] << self
+	end
+end

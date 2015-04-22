@@ -1,0 +1,9 @@
+.test h1 {font-size: 2em;}
+.test {
+	display: inline-block;
+	width: 500px;
+	height: 500px;
+	color: red;
+	margin: auto 0;
+	text-align: center;
+}
